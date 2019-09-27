@@ -74,7 +74,7 @@ type Photo struct {
 		HTML             *URL `json:"html"`
 		Download         *URL `json:"download"`
 		DownloadLocation *URL `json:"download_location"`
-	} `json:"links"`,
+	} `json:"links"`
 	Tags *[]struct {
 		Title *string `json:"title"`
 	} `json:"tags"`
