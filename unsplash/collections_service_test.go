@@ -24,6 +24,7 @@
 package unsplash
 
 import (
+	"context"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -38,7 +39,7 @@ func TestAllCollections(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	collections, resp, err := unsplash.Collections.All(nil)
+	collections, resp, err := unsplash.Collections.All(context.Background(), nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
@@ -52,7 +53,7 @@ func TestAllCollections(T *testing.T) {
 
 	opt := *defaultListOpt
 	opt.Page = 2
-	collections, resp, err = unsplash.Collections.All(&opt)
+	collections, resp, err = unsplash.Collections.All(context.Background(), &opt)
 	assert.Nil(err)
 	log.Println(err)
 	assert.NotNil(resp)
@@ -64,7 +65,7 @@ func TestAllCollections(T *testing.T) {
 	assert.NotNil(collections)
 	assert.Equal(10, len(*collections))
 
-	collections, resp, err = unsplash.Collections.All(&ListOpt{PerPage: -1})
+	collections, resp, err = unsplash.Collections.All(context.Background(), &ListOpt{PerPage: -1})
 	assert.Nil(collections)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -77,7 +78,7 @@ func TestFeaturedCollections(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	collections, resp, err := unsplash.Collections.Featured(nil)
+	collections, resp, err := unsplash.Collections.Featured(context.Background(), nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
@@ -92,7 +93,7 @@ func TestCuratedCollections(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	collections, resp, err := unsplash.Collections.Curated(nil)
+	collections, resp, err := unsplash.Collections.Curated(context.Background(), nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
@@ -107,14 +108,14 @@ func TestRelatedCollections(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	collections, resp, err := unsplash.Collections.Related("910", nil)
+	collections, resp, err := unsplash.Collections.Related(context.Background(), "910", nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
 	assert.NotNil(collections)
 	log.Println(resp)
 
-	collections, resp, err = unsplash.Collections.Related("", nil)
+	collections, resp, err = unsplash.Collections.Related(context.Background(), "", nil)
 	assert.NotNil(err)
 	assert.Nil(collections)
 	assert.Nil(resp)
@@ -124,14 +125,14 @@ func TestSimpleCollection(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	collection, resp, err := unsplash.Collections.Collection("910")
+	collection, resp, err := unsplash.Collections.Collection(context.Background(), "910")
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(collection)
 	log.Println(resp)
 	log.Println(collection)
 
-	collection, resp, err = unsplash.Collections.Collection("")
+	collection, resp, err = unsplash.Collections.Collection(context.Background(), "")
 	assert.NotNil(err)
 	assert.Nil(collection)
 	assert.Nil(resp)
@@ -144,21 +145,21 @@ func TestCreateCollection(T *testing.T) {
 	var opt CollectionOpt
 	title := "Test42"
 	opt.Title = &title
-	collection, resp, err := unsplash.Collections.Create(&opt)
+	collection, resp, err := unsplash.Collections.Create(context.Background(), &opt)
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(collection)
-	resp, err = unsplash.Collections.Delete(*collection.ID)
+	resp, err = unsplash.Collections.Delete(context.Background(), *collection.ID)
 	assert.NotNil(resp)
 	assert.Nil(err)
 
 	title = ""
-	collection, resp, err = unsplash.Collections.Create(&opt)
+	collection, resp, err = unsplash.Collections.Create(context.Background(), &opt)
 	assert.Nil(resp)
 	assert.Nil(collection)
 	assert.NotNil(err)
 
-	collection, resp, err = unsplash.Collections.Create(nil)
+	collection, resp, err = unsplash.Collections.Create(context.Background(), nil)
 	assert.Nil(resp)
 	assert.Nil(collection)
 	assert.NotNil(err)
@@ -171,7 +172,7 @@ func TestUpdateCollection(T *testing.T) {
 	unsplash := setup()
 
 	//get a user's collection
-	collections, resp, err := unsplash.Users.Collections("gopher", nil)
+	collections, resp, err := unsplash.Users.Collections(context.Background(), "gopher", nil)
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(collections)
@@ -182,22 +183,22 @@ func TestUpdateCollection(T *testing.T) {
 	var opt CollectionOpt
 	title := "Test43" + strconv.Itoa(rand.Int())
 	opt.Title = &title
-	col, resp, err := unsplash.Collections.Update(*collection.ID, &opt)
+	col, resp, err := unsplash.Collections.Update(context.Background(), *collection.ID, &opt)
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(col)
 
-	col, resp, err = unsplash.Collections.Update(0, &opt)
+	col, resp, err = unsplash.Collections.Update(context.Background(), 0, &opt)
 	assert.Nil(resp)
 	assert.Nil(col)
 	assert.NotNil(err)
 
-	col, resp, err = unsplash.Collections.Update(246, nil)
+	col, resp, err = unsplash.Collections.Update(context.Background(), 246, nil)
 	assert.Nil(resp)
 	assert.Nil(col)
 	assert.NotNil(err)
 
-	col, resp, err = unsplash.Collections.Update(0, nil)
+	col, resp, err = unsplash.Collections.Update(context.Background(), 0, nil)
 	assert.Nil(resp)
 	assert.Nil(col)
 	assert.NotNil(err)
@@ -211,16 +212,16 @@ func TestDeleteCollection(T *testing.T) {
 	var opt CollectionOpt
 	title := "Test42"
 	opt.Title = &title
-	collection, resp, err := unsplash.Collections.Create(&opt)
+	collection, resp, err := unsplash.Collections.Create(context.Background(), &opt)
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(collection)
 
-	resp, err = unsplash.Collections.Delete(*collection.ID)
+	resp, err = unsplash.Collections.Delete(context.Background(), *collection.ID)
 	assert.NotNil(resp)
 	assert.Nil(err)
 
-	resp, err = unsplash.Collections.Delete(0)
+	resp, err = unsplash.Collections.Delete(context.Background(), 0)
 	assert.NotNil(err)
 	assert.Nil(resp)
 }
@@ -232,7 +233,7 @@ func TestAddPhoto(T *testing.T) {
 	unsplash := setup()
 
 	//get a random photo
-	photos, resp, err := unsplash.Photos.Random(nil)
+	photos, resp, err := unsplash.Photos.Random(context.Background(), nil)
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(photos)
@@ -241,7 +242,7 @@ func TestAddPhoto(T *testing.T) {
 	assert.NotNil(photo)
 
 	//get a user's collection
-	collections, resp, err := unsplash.Users.Collections("gopher", nil)
+	collections, resp, err := unsplash.Users.Collections(context.Background(), "gopher", nil)
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(collections)
@@ -250,18 +251,18 @@ func TestAddPhoto(T *testing.T) {
 	assert.NotNil(collection)
 
 	//add the photo
-	resp, err = unsplash.Collections.AddPhoto(*collection.ID, *photo.ID)
+	resp, err = unsplash.Collections.AddPhoto(context.Background(), *collection.ID, *photo.ID)
 	assert.Nil(err)
 	assert.NotNil(resp)
 
 	//empty things
-	resp, err = unsplash.Collections.AddPhoto(0, "photoID")
+	resp, err = unsplash.Collections.AddPhoto(context.Background(), 0, "photoID")
 	assert.NotNil(err)
 	assert.Nil(resp)
-	resp, err = unsplash.Collections.AddPhoto(910, "")
+	resp, err = unsplash.Collections.AddPhoto(context.Background(), 910, "")
 	assert.NotNil(err)
 	assert.Nil(resp)
-	resp, err = unsplash.Collections.AddPhoto(0, "")
+	resp, err = unsplash.Collections.AddPhoto(context.Background(), 0, "")
 	assert.NotNil(err)
 	assert.Nil(resp)
 
@@ -274,7 +275,7 @@ func TestRemovePhoto(T *testing.T) {
 	unsplash := setup()
 
 	//get a random photo
-	photos, resp, err := unsplash.Photos.Random(nil)
+	photos, resp, err := unsplash.Photos.Random(context.Background(), nil)
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(photos)
@@ -283,7 +284,7 @@ func TestRemovePhoto(T *testing.T) {
 	assert.NotNil(photo)
 
 	//get a user's collection
-	collections, resp, err := unsplash.Users.Collections("gopher", nil)
+	collections, resp, err := unsplash.Users.Collections(context.Background(), "gopher", nil)
 	assert.Nil(err)
 	assert.NotNil(resp)
 	assert.NotNil(collections)
@@ -292,12 +293,12 @@ func TestRemovePhoto(T *testing.T) {
 	assert.NotNil(collection)
 
 	//add the photo
-	resp, err = unsplash.Collections.AddPhoto(*collection.ID, *photo.ID)
+	resp, err = unsplash.Collections.AddPhoto(context.Background(), *collection.ID, *photo.ID)
 	assert.Nil(err)
 	assert.NotNil(resp)
 
 	//remove the photo
-	_, _ = unsplash.Collections.RemovePhoto(*collection.ID, *photo.ID)
+	_, _ = unsplash.Collections.RemovePhoto(context.Background(), *collection.ID, *photo.ID)
 	// API is being unreliable at the moment. Returns 403 sometimes
 	// could be because of back-to-back requests?
 	// assert.Nil(err)
@@ -305,13 +306,13 @@ func TestRemovePhoto(T *testing.T) {
 
 	//empty stuff
 	//empty things
-	resp, err = unsplash.Collections.RemovePhoto(0, "photoID")
+	resp, err = unsplash.Collections.RemovePhoto(context.Background(), 0, "photoID")
 	assert.NotNil(err)
 	assert.Nil(resp)
-	resp, err = unsplash.Collections.RemovePhoto(910, "")
+	resp, err = unsplash.Collections.RemovePhoto(context.Background(), 910, "")
 	assert.NotNil(err)
 	assert.Nil(resp)
-	resp, err = unsplash.Collections.RemovePhoto(0, "")
+	resp, err = unsplash.Collections.RemovePhoto(context.Background(), 0, "")
 	assert.NotNil(err)
 	assert.Nil(resp)
 }
@@ -338,7 +339,7 @@ func rogueCollectionServiceTest(T *testing.T, responder httpmock.Responder) {
 
 	unsplash := setup()
 	assert := assert.New(T)
-	collection, resp, err := unsplash.Collections.Collection("gopherCollection")
+	collection, resp, err := unsplash.Collections.Collection(context.Background(), "gopherCollection")
 	assert.Nil(collection)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -347,29 +348,29 @@ func rogueCollectionServiceTest(T *testing.T, responder httpmock.Responder) {
 	var opt CollectionOpt
 	title := "gopherCollection"
 	opt.Title = &title
-	collection, resp, err = unsplash.Collections.Create(&opt)
+	collection, resp, err = unsplash.Collections.Create(context.Background(), &opt)
 	assert.Nil(collection)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	collection, resp, err = unsplash.Collections.Update(4242, &opt)
+	collection, resp, err = unsplash.Collections.Update(context.Background(), 4242, &opt)
 	assert.Nil(collection)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	resp, err = unsplash.Collections.Delete(4242)
+	resp, err = unsplash.Collections.Delete(context.Background(), 4242)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	resp, err = unsplash.Collections.AddPhoto(4242, "gopherPhoto")
+	resp, err = unsplash.Collections.AddPhoto(context.Background(), 4242, "gopherPhoto")
 	assert.NotNil(err)
 	assert.Nil(resp)
 	log.Println(err)
 
-	cols, resp, err := unsplash.Collections.All(nil)
+	cols, resp, err := unsplash.Collections.All(context.Background(), nil)
 	assert.Nil(cols)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -391,7 +392,7 @@ func TestRemovePhotoRogue(T *testing.T) {
 
 	unsplash := setup()
 	assert := assert.New(T)
-	resp, err := unsplash.Collections.RemovePhoto(4242, "gopherPhoto")
+	resp, err := unsplash.Collections.RemovePhoto(context.Background(), 4242, "gopherPhoto")
 	assert.NotNil(err)
 	assert.Nil(resp)
 	log.Println(err)
@@ -399,7 +400,7 @@ func TestRemovePhotoRogue(T *testing.T) {
 	httpmock.RegisterResponder("DELETE", getEndpoint(base)+getEndpoint(collections)+"/4242/remove?photo_id=gopherPhoto",
 		nil)
 
-	resp, err = unsplash.Collections.RemovePhoto(4242, "gopherPhoto")
+	resp, err = unsplash.Collections.RemovePhoto(context.Background(), 4242, "gopherPhoto")
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)

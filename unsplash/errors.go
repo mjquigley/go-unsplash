@@ -23,6 +23,12 @@
 
 package unsplash
 
+import (
+	"net/http"
+	"strconv"
+	"time"
+)
+
 //The following are implementing error interface
 
 // IllegalArgumentError occurs when the argument to a function are
@@ -60,6 +66,28 @@ type NotFoundError struct {
 
 func (e NotFoundError) Error() string {
 	return e.ErrString
+}
+
+// ServerError occurs when the resource queried returns an unknown error.
+type ServerError struct {
+	ErrString  string
+	StatusCode int
+	RetryAfter time.Duration
+}
+
+func (e ServerError) Error() string {
+	return e.ErrString
+}
+
+func (e ServerError) Status() int {
+	return e.StatusCode
+}
+
+func (e ServerError) Header() http.Header {
+	if e.RetryAfter == 0 {
+		return http.Header{}
+	}
+	return http.Header{"Retry-After": {strconv.Itoa(int(e.RetryAfter / time.Second))}}
 }
 
 // InvalidPhotoOptError occurs when PhotoOpt.Valid() fails.

@@ -24,6 +24,7 @@
 package unsplash
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,39 +36,39 @@ type CollectionsService service
 // All returns a list of all collections on unsplash.
 // Note that some fields in collection structs from this result will be missing.
 // Use Collection() method to get all details of the Collection.
-func (cs *CollectionsService) All(opt *ListOpt) (*[]Collection, *Response, error) {
+func (cs *CollectionsService) All(ctx context.Context, opt *ListOpt) (*[]Collection, *Response, error) {
 	s := (service)(*cs)
-	return s.getCollections(opt, getEndpoint(collections))
+	return s.getCollections(ctx, opt, getEndpoint(collections))
 }
 
 // Featured returns a list of featured collections on unsplash.
 // Note that some fields in collection structs from this result will be missing.
 // Use Collection() method to get all details of the Collection.
-func (cs *CollectionsService) Featured(opt *ListOpt) (*[]Collection, *Response, error) {
+func (cs *CollectionsService) Featured(ctx context.Context, opt *ListOpt) (*[]Collection, *Response, error) {
 	s := (service)(*cs)
-	return s.getCollections(opt, getEndpoint(collections)+"/featured")
+	return s.getCollections(ctx, opt, getEndpoint(collections)+"/featured")
 }
 
 // Curated returns a list of curated collections on unsplash.
 // Note that some fields in collection structs from this result will be missing.
 // Use Collection() method to get all details of the Collection.
-func (cs *CollectionsService) Curated(opt *ListOpt) (*[]Collection, *Response, error) {
+func (cs *CollectionsService) Curated(ctx context.Context, opt *ListOpt) (*[]Collection, *Response, error) {
 	s := (service)(*cs)
-	return s.getCollections(opt, getEndpoint(collections)+"/curated")
+	return s.getCollections(ctx, opt, getEndpoint(collections)+"/curated")
 }
 
 // Related returns a list of collections related to collections with id.
-func (cs *CollectionsService) Related(id string, opt *ListOpt) (*[]Collection, *Response, error) {
+func (cs *CollectionsService) Related(ctx context.Context, id string, opt *ListOpt) (*[]Collection, *Response, error) {
 	if "" == id {
 		return nil, nil, &IllegalArgumentError{ErrString: "Collection ID cannot be nil"}
 	}
 	s := (service)(*cs)
 	endpoint := fmt.Sprintf("%v/%v/%v", getEndpoint(collections), id, "related")
-	return s.getCollections(opt, endpoint)
+	return s.getCollections(ctx, opt, endpoint)
 }
 
 // Collection returns a collection with id.
-func (cs *CollectionsService) Collection(id string) (*Collection, *Response, error) {
+func (cs *CollectionsService) Collection(ctx context.Context, id string) (*Collection, *Response, error) {
 	if "" == id {
 		return nil, nil, &IllegalArgumentError{ErrString: "Collection ID cannot be nil"}
 	}
@@ -76,7 +77,7 @@ func (cs *CollectionsService) Collection(id string) (*Collection, *Response, err
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := cs.client.do(req)
+	resp, err := cs.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -97,7 +98,7 @@ type CollectionOpt struct {
 }
 
 //Create creates a new collection on the authenticated  user's profile.
-func (cs *CollectionsService) Create(opt *CollectionOpt) (*Collection, *Response, error) {
+func (cs *CollectionsService) Create(ctx context.Context, opt *CollectionOpt) (*Collection, *Response, error) {
 	if nil == opt {
 		return nil, nil, &IllegalArgumentError{ErrString: "Opt cannot be nil"}
 	}
@@ -108,7 +109,7 @@ func (cs *CollectionsService) Create(opt *CollectionOpt) (*Collection, *Response
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := cs.client.do(req)
+	resp, err := cs.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -124,7 +125,7 @@ func (cs *CollectionsService) Create(opt *CollectionOpt) (*Collection, *Response
 }
 
 //Update updates an existing collection on the authenticated  user's profile.
-func (cs *CollectionsService) Update(collectionID int, opt *CollectionOpt) (*Collection, *Response, error) {
+func (cs *CollectionsService) Update(ctx context.Context, collectionID int, opt *CollectionOpt) (*Collection, *Response, error) {
 	if nil == opt {
 		return nil, nil, &IllegalArgumentError{ErrString: "Opt cannot be nil"}
 	}
@@ -136,7 +137,7 @@ func (cs *CollectionsService) Update(collectionID int, opt *CollectionOpt) (*Col
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := cs.client.do(req)
+	resp, err := cs.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -149,7 +150,7 @@ func (cs *CollectionsService) Update(collectionID int, opt *CollectionOpt) (*Col
 }
 
 //Delete deletes a collection on the authenticated user's profile.
-func (cs *CollectionsService) Delete(collectionID int) (*Response, error) {
+func (cs *CollectionsService) Delete(ctx context.Context, collectionID int) (*Response, error) {
 	if collectionID == 0 {
 		return nil, &IllegalArgumentError{ErrString: "CollectionID cannot be empty or zero."}
 	}
@@ -158,7 +159,7 @@ func (cs *CollectionsService) Delete(collectionID int) (*Response, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := cs.client.do(req)
+	resp, err := cs.client.do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -173,7 +174,7 @@ type addPhoto struct {
 }
 
 //AddPhoto adds a photo to a collection owned by an authenticated user.
-func (cs *CollectionsService) AddPhoto(collectionID int, photoID string) (*Response, error) {
+func (cs *CollectionsService) AddPhoto(ctx context.Context, collectionID int, photoID string) (*Response, error) {
 	if collectionID == 0 {
 		return nil, &IllegalArgumentError{ErrString: "CollectionID cannot be empty or zero."}
 	}
@@ -186,7 +187,7 @@ func (cs *CollectionsService) AddPhoto(collectionID int, photoID string) (*Respo
 	if err != nil {
 		return nil, err
 	}
-	resp, err := cs.client.do(req)
+	resp, err := cs.client.do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +198,7 @@ func (cs *CollectionsService) AddPhoto(collectionID int, photoID string) (*Respo
 }
 
 //RemovePhoto removes a photo from a collection owned by an authenticated user.
-func (cs *CollectionsService) RemovePhoto(collectionID int, photoID string) (*Response, error) {
+func (cs *CollectionsService) RemovePhoto(ctx context.Context, collectionID int, photoID string) (*Response, error) {
 	if collectionID == 0 {
 		return nil, &IllegalArgumentError{ErrString: "CollectionID cannot be empty or zero."}
 	}
@@ -210,7 +211,7 @@ func (cs *CollectionsService) RemovePhoto(collectionID int, photoID string) (*Re
 	if err != nil {
 		return nil, err
 	}
-	resp, err := cs.client.do(req)
+	resp, err := cs.client.do(ctx, req)
 	if err != nil {
 		return nil, err
 	}

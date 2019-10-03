@@ -24,6 +24,7 @@
 package unsplash
 
 import (
+	"context"
 	"io/ioutil"
 	"log"
 	"testing"
@@ -37,7 +38,7 @@ func TestUserProfile(T *testing.T) {
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
 	profileImageOpt := &ProfileImageOpt{Height: 120, Width: 400}
-	user, err := unsplash.Users.User("lukechesser", profileImageOpt)
+	user, err := unsplash.Users.User(context.Background(), "lukechesser", profileImageOpt)
 	assert.Nil(err)
 	assert.NotNil(user)
 	log.Println(user)
@@ -53,7 +54,7 @@ func TestUserProfile(T *testing.T) {
 	assert.NotNil(pi.Custom)
 	log.Println(user.ProfileImage.Custom.String())
 
-	user, err = unsplash.Users.User("hbagdi", nil)
+	user, err = unsplash.Users.User(context.Background(), "hbagdi", nil)
 	assert.Nil(err)
 	assert.NotNil(user)
 	//log.Println(user)
@@ -61,14 +62,14 @@ func TestUserProfile(T *testing.T) {
 	assert.NotNil(pi)
 	assert.Nil(pi.Custom)
 
-	user, err = unsplash.Users.User("", nil)
+	user, err = unsplash.Users.User(context.Background(), "", nil)
 	assert.Nil(user)
 	assert.NotNil(err)
 	iae, ok := err.(*IllegalArgumentError)
 	assert.NotNil(iae)
 	assert.Equal(true, ok)
 
-	user, err = unsplash.Users.User(" batmanIsNotAuser", nil)
+	user, err = unsplash.Users.User(context.Background(), " batmanIsNotAuser", nil)
 	assert.Nil(user)
 	assert.NotNil(err)
 	nfe, ok := err.(*NotFoundError)
@@ -80,17 +81,17 @@ func TestUserPortfolio(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	url, err := unsplash.Users.Portfolio("hbagdi")
+	url, err := unsplash.Users.Portfolio(context.Background(), "hbagdi")
 	assert.Nil(err)
 	assert.NotNil(url)
 	log.Println("URL is : ", url.String())
-	url, err = unsplash.Users.Portfolio("gopher")
+	url, err = unsplash.Users.Portfolio(context.Background(), "gopher")
 	assert.Nil(err)
 	assert.NotNil(url)
 	assert.Equal(url.String(), "https://wikipedia.org/wiki/Gopher")
 	log.Println("URL is : ", url.String())
 
-	url, err = unsplash.Users.Portfolio("")
+	url, err = unsplash.Users.Portfolio(context.Background(), "")
 	assert.Nil(url)
 	assert.NotNil(err)
 	iae, ok := err.(*IllegalArgumentError)
@@ -102,29 +103,29 @@ func TestUserStatistics(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	stats, resp, err := unsplash.Users.Statistics("lukechesser", nil)
+	stats, resp, err := unsplash.Users.Statistics(context.Background(), "lukechesser", nil)
 	assert.Nil(err)
 	assert.NotNil(stats)
 	assert.NotNil(resp)
 	assert.NotNil(30, stats.Downloads.Historical.Quantity)
 	log.Println(stats)
 
-	stats, resp, err = unsplash.Users.Statistics("lukechesser", &StatsOpt{Quantity: 10})
+	stats, resp, err = unsplash.Users.Statistics(context.Background(), "lukechesser", &StatsOpt{Quantity: 10})
 	assert.Nil(err)
 	assert.NotNil(stats)
 	assert.NotNil(resp)
 	assert.NotNil(30, stats.Downloads.Historical.Quantity)
 	log.Println(stats)
 
-	stats, resp, err = unsplash.Users.Statistics("lukechesser", &StatsOpt{Resolution: "sd"})
+	stats, resp, err = unsplash.Users.Statistics(context.Background(), "lukechesser", &StatsOpt{Resolution: "sd"})
 	assert.NotNil(err)
 	assert.Nil(resp)
 
-	stats, resp, err = unsplash.Users.Statistics("lukechesser", &StatsOpt{Quantity: 31})
+	stats, resp, err = unsplash.Users.Statistics(context.Background(), "lukechesser", &StatsOpt{Quantity: 31})
 	assert.NotNil(err)
 	assert.Nil(resp)
 
-	stats, resp, err = unsplash.Users.Statistics("", nil)
+	stats, resp, err = unsplash.Users.Statistics(context.Background(), "", nil)
 	assert.Nil(stats)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -134,7 +135,7 @@ func TestLikedPhotos(T *testing.T) {
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
 	// hopefully cofounder won't change his username
-	photos, resp, err := unsplash.Users.LikedPhotos("lukechesser", nil)
+	photos, resp, err := unsplash.Users.LikedPhotos(context.Background(), "lukechesser", nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
@@ -149,7 +150,7 @@ func TestLikedPhotos(T *testing.T) {
 	opt := *defaultListOpt
 	opt.Page = 2
 	opt.PerPage = 42
-	photos, resp, err = unsplash.Users.LikedPhotos("lukechesser", &opt)
+	photos, resp, err = unsplash.Users.LikedPhotos(context.Background(), "lukechesser", &opt)
 	assert.Nil(err)
 	log.Println(err)
 	assert.NotNil(resp)
@@ -161,14 +162,14 @@ func TestLikedPhotos(T *testing.T) {
 	assert.NotNil(photos)
 	assert.Equal(30, len(*photos))
 
-	photos, resp, err = unsplash.Users.LikedPhotos("lukechesser", &ListOpt{PerPage: -1})
+	photos, resp, err = unsplash.Users.LikedPhotos(context.Background(), "lukechesser", &ListOpt{PerPage: -1})
 	assert.Nil(photos)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	_, ok := err.(*InvalidListOptError)
 	assert.Equal(true, ok)
 
-	photos, resp, err = unsplash.Users.LikedPhotos("", nil)
+	photos, resp, err = unsplash.Users.LikedPhotos(context.Background(), "", nil)
 	assert.NotNil(err)
 	assert.Nil(photos)
 	assert.Nil(resp)
@@ -179,13 +180,13 @@ func TestUserPhotos(T *testing.T) {
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
 	// hopefully cofounder won't change his username
-	_, resp, err := unsplash.Users.Photos("lukechesser", nil)
+	_, resp, err := unsplash.Users.Photos(context.Background(), "lukechesser", nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
 	log.Println(resp)
 
-	photos, resp, err := unsplash.Users.Photos("", nil)
+	photos, resp, err := unsplash.Users.Photos(context.Background(), "", nil)
 	assert.NotNil(err)
 	assert.Nil(photos)
 	assert.Nil(resp)
@@ -197,13 +198,13 @@ func TestUserCollections(T *testing.T) {
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
 	// hopefully cofounder won't change his username
-	_, resp, err := unsplash.Users.Collections("gopher", nil)
+	_, resp, err := unsplash.Users.Collections(context.Background(), "gopher", nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
 	log.Println(resp)
 
-	photos, resp, err := unsplash.Users.Collections("", nil)
+	photos, resp, err := unsplash.Users.Collections(context.Background(), "", nil)
 	assert.NotNil(err)
 	assert.Nil(photos)
 	assert.Nil(resp)
@@ -221,12 +222,12 @@ func rogueUserServiceTests(T *testing.T, responder httpmock.Responder) {
 
 	unsplash := setup()
 	assert := assert.New(T)
-	user, err := unsplash.Users.User("gopher", nil)
+	user, err := unsplash.Users.User(context.Background(), "gopher", nil)
 	assert.Nil(user)
 	assert.NotNil(err)
 	log.Println(err)
 
-	url, err := unsplash.Users.Portfolio("gopher")
+	url, err := unsplash.Users.Portfolio(context.Background(), "gopher")
 	assert.Nil(url)
 	assert.NotNil(err)
 	log.Println(err)

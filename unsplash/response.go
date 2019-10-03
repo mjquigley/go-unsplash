@@ -25,12 +25,12 @@ package unsplash
 
 import (
 	"bytes"
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Response has pagination information whenever applicable
@@ -60,7 +60,13 @@ func (r *Response) checkForErrors() error {
 	case 404:
 		return &NotFoundError{ErrString: errStringHelper(r.httpResponse.StatusCode, "The cat got tired of the Laser", r.body)}
 	default:
-		return errors.New(errStringHelper(r.httpResponse.StatusCode, "API returned an error", r.body))
+		retryAfter := r.httpResponse.Header.Get("Retry-After")
+		var retryAfterDuration time.Duration
+		if retryAfter != "" {
+			seconds, _ := strconv.Atoi(retryAfter)
+			retryAfterDuration = time.Second * time.Duration(seconds)
+		}
+		return &ServerError{ErrString: errStringHelper(r.httpResponse.StatusCode, "API returned an error", r.body), StatusCode: r.httpResponse.StatusCode, RetryAfter: retryAfterDuration}
 
 	}
 }

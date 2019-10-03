@@ -61,7 +61,7 @@ type User struct {
 	FirstName           *string       `json:"first_name"`
 	CompletedOnboarding *bool         `json:"completed_onboarding"`
 	LastName            *string       `json:"last_name,omitempty"`
-	PortfolioURL        *URL          `json:"portfolio_url"`
+	PortfolioURL        *string       `json:"portfolio_url"`
 	Bio                 *string       `json:"bio"`
 	Location            *string       `json:"location"`
 	TotalLikes          *int          `json:"total_likes"`

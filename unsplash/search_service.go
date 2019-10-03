@@ -23,7 +23,11 @@
 
 package unsplash
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"golang.org/x/net/context"
+)
 
 // SearchService interacts with /search endpoint
 type SearchService service
@@ -51,7 +55,7 @@ func (opt *SearchOpt) Valid() bool {
 }
 
 // Users can be used to query any endpoint which returns an array of users.
-func (ss *SearchService) Users(opt *SearchOpt) (*UserSearchResult, *Response, error) {
+func (ss *SearchService) Users(ctx context.Context, opt *SearchOpt) (*UserSearchResult, *Response, error) {
 	if nil == opt {
 		return nil, nil, &IllegalArgumentError{ErrString: "SearchOpt cannot be nil"}
 	}
@@ -62,7 +66,7 @@ func (ss *SearchService) Users(opt *SearchOpt) (*UserSearchResult, *Response, er
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ss.client.do(req)
+	resp, err := ss.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -75,7 +79,7 @@ func (ss *SearchService) Users(opt *SearchOpt) (*UserSearchResult, *Response, er
 }
 
 // Photos queries the search endpoint to search for photos.
-func (ss *SearchService) Photos(opt *SearchOpt) (*PhotoSearchResult, *Response, error) {
+func (ss *SearchService) Photos(ctx context.Context, opt *SearchOpt) (*PhotoSearchResult, *Response, error) {
 	if nil == opt {
 		return nil, nil, &IllegalArgumentError{ErrString: "SearchOpt cannot be nil"}
 	}
@@ -86,7 +90,7 @@ func (ss *SearchService) Photos(opt *SearchOpt) (*PhotoSearchResult, *Response, 
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ss.client.do(req)
+	resp, err := ss.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -99,7 +103,7 @@ func (ss *SearchService) Photos(opt *SearchOpt) (*PhotoSearchResult, *Response, 
 }
 
 // Collections queries the search endpoint to search for collections.
-func (ss *SearchService) Collections(opt *SearchOpt) (*CollectionSearchResult, *Response, error) {
+func (ss *SearchService) Collections(ctx context.Context, opt *SearchOpt) (*CollectionSearchResult, *Response, error) {
 	if nil == opt {
 		return nil, nil, &IllegalArgumentError{ErrString: "SearchOpt cannot be nil"}
 	}
@@ -110,7 +114,7 @@ func (ss *SearchService) Collections(opt *SearchOpt) (*CollectionSearchResult, *
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ss.client.do(req)
+	resp, err := ss.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}

@@ -24,6 +24,7 @@
 package unsplash
 
 import (
+	"context"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -33,7 +34,7 @@ func TestCurrentUser(T *testing.T) {
 	assert := assert.New(T)
 	unsplash := setup()
 
-	user, resp, err := unsplash.CurrentUser()
+	user, resp, err := unsplash.CurrentUser(context.Background())
 	assert.NotNil(user)
 	assert.NotNil(resp)
 	assert.Nil(err)

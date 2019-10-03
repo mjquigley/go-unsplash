@@ -28,6 +28,8 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+
+	"golang.org/x/net/context"
 )
 
 type service struct {
@@ -59,7 +61,7 @@ func New(client *http.Client) *Unsplash {
 	return unsplash
 }
 
-func (s *Unsplash) do(req *request) (*Response, error) {
+func (s *Unsplash) do(ctx context.Context, req *request) (*Response, error) {
 	var err error
 	//TODO should this be exported?
 	if req == nil {
@@ -67,6 +69,7 @@ func (s *Unsplash) do(req *request) (*Response, error) {
 			&IllegalArgumentError{ErrString: "Request object cannot be nil"}
 	}
 	req.Request.Header.Set("Accept-Version", "v1")
+	req.Request = req.Request.WithContext(ctx)
 	//Make the request
 	client := s.client
 	rawResp, err := client.Do(req.Request)
@@ -88,13 +91,13 @@ func (s *Unsplash) do(req *request) (*Response, error) {
 }
 
 // CurrentUser returns details about the authenticated user
-func (u *Unsplash) CurrentUser() (*User, *Response, error) {
+func (u *Unsplash) CurrentUser(ctx context.Context) (*User, *Response, error) {
 	var err error
 	req, err := newRequest(GET, getEndpoint(currentUser), nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := u.do(req)
+	resp, err := u.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -108,7 +111,7 @@ func (u *Unsplash) CurrentUser() (*User, *Response, error) {
 }
 
 // UpdateCurrentUser updates the current user's private data and returns an update User struct
-func (u *Unsplash) UpdateCurrentUser(updateInfo *UserUpdateInfo) (*User, *Response, error) {
+func (u *Unsplash) UpdateCurrentUser(ctx context.Context, updateInfo *UserUpdateInfo) (*User, *Response, error) {
 	if updateInfo == nil {
 		return nil, nil, &IllegalArgumentError{ErrString: "updateInfo cannot be null"}
 	}
@@ -117,7 +120,7 @@ func (u *Unsplash) UpdateCurrentUser(updateInfo *UserUpdateInfo) (*User, *Respon
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := u.do(req)
+	resp, err := u.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -132,13 +135,13 @@ func (u *Unsplash) UpdateCurrentUser(updateInfo *UserUpdateInfo) (*User, *Respon
 
 // Stats gives the total photos,download since the inception of unsplash.com
 // This method is DEPRECATED, USE TotalStats()
-func (u *Unsplash) Stats() (*GlobalStats, *Response, error) {
+func (u *Unsplash) Stats(ctx context.Context) (*GlobalStats, *Response, error) {
 	var err error
 	req, err := newRequest(GET, getEndpoint(globalStats), nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := u.do(req)
+	resp, err := u.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -152,18 +155,18 @@ func (u *Unsplash) Stats() (*GlobalStats, *Response, error) {
 }
 
 // TotalStats returns various stats related to unsplash.com since it's inception
-func (u *Unsplash) TotalStats() (*GlobalStats, *Response, error) {
-	return u.Stats()
+func (u *Unsplash) TotalStats(ctx context.Context) (*GlobalStats, *Response, error) {
+	return u.Stats(ctx)
 }
 
 // MonthStats returns various stats related to unsplash.com for last 30 days
-func (u *Unsplash) MonthStats() (*MonthStats, *Response, error) {
+func (u *Unsplash) MonthStats(ctx context.Context) (*MonthStats, *Response, error) {
 	var err error
 	req, err := newRequest(GET, getEndpoint(monthStats), nil, nil)
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := u.do(req)
+	resp, err := u.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}

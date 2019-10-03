@@ -25,6 +25,7 @@ package unsplash
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -69,7 +70,7 @@ func processPhotoOpt(photoOpt *PhotoOpt) interface{} {
 }
 
 // Photo return a photo with id
-func (ps *PhotosService) Photo(id string, photoOpt *PhotoOpt) (*Photo, *Response, error) {
+func (ps *PhotosService) Photo(ctx context.Context, id string, photoOpt *PhotoOpt) (*Photo, *Response, error) {
 	if "" == id {
 		return nil, nil, &IllegalArgumentError{ErrString: "Photo ID cannot be null"}
 	}
@@ -88,7 +89,7 @@ func (ps *PhotosService) Photo(id string, photoOpt *PhotoOpt) (*Photo, *Response
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ps.client.do(req)
+	resp, err := ps.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -101,7 +102,7 @@ func (ps *PhotosService) Photo(id string, photoOpt *PhotoOpt) (*Photo, *Response
 }
 
 // Stats return a stats about a photo with id.
-func (ps *PhotosService) Stats(id string) (*PhotoStats, *Response, error) {
+func (ps *PhotosService) Stats(ctx context.Context, id string) (*PhotoStats, *Response, error) {
 	if "" == id {
 		return nil, nil, &IllegalArgumentError{ErrString: "Photo ID cannot be null"}
 	}
@@ -110,7 +111,7 @@ func (ps *PhotosService) Stats(id string) (*PhotoStats, *Response, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ps.client.do(req)
+	resp, err := ps.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -123,7 +124,7 @@ func (ps *PhotosService) Stats(id string) (*PhotoStats, *Response, error) {
 }
 
 // Statistics return a stats about a photo with id.
-func (ps *PhotosService) Statistics(id string, opt *StatsOpt) (*PhotoStatistics, *Response, error) {
+func (ps *PhotosService) Statistics(ctx context.Context, id string, opt *StatsOpt) (*PhotoStatistics, *Response, error) {
 	if "" == id {
 		return nil, nil, &IllegalArgumentError{ErrString: "Photo ID cannot be null"}
 	}
@@ -138,7 +139,7 @@ func (ps *PhotosService) Statistics(id string, opt *StatsOpt) (*PhotoStatistics,
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ps.client.do(req)
+	resp, err := ps.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -151,7 +152,7 @@ func (ps *PhotosService) Statistics(id string, opt *StatsOpt) (*PhotoStatistics,
 }
 
 // DownloadLink return the download URL for a photo.
-func (ps *PhotosService) DownloadLink(id string) (*URL, *Response, error) {
+func (ps *PhotosService) DownloadLink(ctx context.Context, id string) (*URL, *Response, error) {
 	if "" == id {
 		return nil, nil, &IllegalArgumentError{ErrString: "Photo ID cannot be null"}
 	}
@@ -160,7 +161,7 @@ func (ps *PhotosService) DownloadLink(id string) (*URL, *Response, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ps.client.do(req)
+	resp, err := ps.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -175,15 +176,15 @@ func (ps *PhotosService) DownloadLink(id string) (*URL, *Response, error) {
 // All returns a list of all photos on unsplash.
 // Note that some fields in photo structs from this result will be missing.
 // Use Photo() method to get all details of the  Photo.
-func (ps *PhotosService) All(listOpt *ListOpt) (*[]Photo, *Response, error) {
+func (ps *PhotosService) All(ctx context.Context, listOpt *ListOpt) (*[]Photo, *Response, error) {
 	s := (service)(*ps)
-	return s.getPhotos(listOpt, getEndpoint(photos))
+	return s.getPhotos(ctx, listOpt, getEndpoint(photos))
 }
 
 // Curated return a list of all curated photos.
-func (ps *PhotosService) Curated(listOpt *ListOpt) (*[]Photo, *Response, error) {
+func (ps *PhotosService) Curated(ctx context.Context, listOpt *ListOpt) (*[]Photo, *Response, error) {
 	s := (service)(*ps)
-	return s.getPhotos(listOpt, getEndpoint(photos)+"/curated")
+	return s.getPhotos(ctx, listOpt, getEndpoint(photos))
 }
 
 // RandomPhotoOpt optional parameters for a random photo search
@@ -234,7 +235,7 @@ var defaultRandomPhotoOpt = &RandomPhotoOpt{Count: 1}
 
 // Random returns random photo(s).
 // If opt is nil, then a single random photo is returned by default
-func (ps *PhotosService) Random(opt *RandomPhotoOpt) (*[]Photo, *Response, error) {
+func (ps *PhotosService) Random(ctx context.Context, opt *RandomPhotoOpt) (*[]Photo, *Response, error) {
 	if opt == nil {
 		opt = defaultRandomPhotoOpt
 	}
@@ -245,7 +246,7 @@ func (ps *PhotosService) Random(opt *RandomPhotoOpt) (*[]Photo, *Response, error
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ps.client.do(req)
+	resp, err := ps.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -259,7 +260,7 @@ func (ps *PhotosService) Random(opt *RandomPhotoOpt) (*[]Photo, *Response, error
 }
 
 // Like likes a photo on the currently authenticated user's behalf
-func (ps *PhotosService) Like(photoID string) (*Photo, *Response, error) {
+func (ps *PhotosService) Like(ctx context.Context, photoID string) (*Photo, *Response, error) {
 	if photoID == "" {
 		return nil, nil, &IllegalArgumentError{ErrString: "PhotoID cannot be null"}
 	}
@@ -268,7 +269,7 @@ func (ps *PhotosService) Like(photoID string) (*Photo, *Response, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ps.client.do(req)
+	resp, err := ps.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -281,7 +282,7 @@ func (ps *PhotosService) Like(photoID string) (*Photo, *Response, error) {
 }
 
 // Unlike likes a photo on the currently authenticated user's behalf
-func (ps *PhotosService) Unlike(photoID string) (*Photo, *Response, error) {
+func (ps *PhotosService) Unlike(ctx context.Context, photoID string) (*Photo, *Response, error) {
 	if photoID == "" {
 		return nil, nil, &IllegalArgumentError{ErrString: "PhotoID cannot be null"}
 	}
@@ -290,7 +291,7 @@ func (ps *PhotosService) Unlike(photoID string) (*Photo, *Response, error) {
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := ps.client.do(req)
+	resp, err := ps.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}

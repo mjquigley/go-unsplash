@@ -24,6 +24,7 @@
 package unsplash
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -111,11 +112,11 @@ func TestUnsplash(T *testing.T) {
 	assert.NotNil(unsplash)
 	assert.NotNil(unsplash.common)
 	assert.NotNil(unsplash.client)
-	tstats, resp, err := unsplash.TotalStats()
+	tstats, resp, err := unsplash.TotalStats(context.Background())
 	assert.Nil(err)
 	assert.NotNil(tstats)
 	assert.NotNil(resp)
-	stats, resp, err := unsplash.Stats()
+	stats, resp, err := unsplash.Stats(context.Background())
 	assert.Nil(err)
 	assert.NotNil(stats)
 	//FIXME
@@ -132,13 +133,13 @@ func TestUnsplash(T *testing.T) {
 	// assert.NotNil(monthlyStats)
 
 	unsplash = New(nil)
-	stats, resp, err = unsplash.Stats()
+	stats, resp, err = unsplash.Stats(context.Background())
 	assert.Nil(stats)
 	assert.Nil(resp)
 	assert.NotNil(err)
 
 	var s service
-	_, err = s.client.do(nil)
+	_, err = s.client.do(context.Background(), nil)
 	assert.NotNil(err)
 }
 
@@ -152,13 +153,13 @@ func TestUnsplashRogueServer(T *testing.T) {
 		httpmock.NewStringResponder(200, `Bad ass Bug flow`))
 	unsplash := setup()
 	assert := assert.New(T)
-	user, resp, err := unsplash.CurrentUser()
+	user, resp, err := unsplash.CurrentUser(context.Background())
 	assert.Nil(user)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.SetOutput(ioutil.Discard)
 	log.Println(err)
-	stats, resp, err := unsplash.Stats()
+	stats, resp, err := unsplash.Stats(context.Background())
 	assert.Nil(stats)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -174,13 +175,13 @@ func TestUnsplashRogueNetwork(T *testing.T) {
 		nil)
 	unsplash := setup()
 	assert := assert.New(T)
-	user, resp, err := unsplash.CurrentUser()
+	user, resp, err := unsplash.CurrentUser(context.Background())
 	assert.Nil(user)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.SetOutput(ioutil.Discard)
 	log.Println(err)
-	stats, resp, err := unsplash.Stats()
+	stats, resp, err := unsplash.Stats(context.Background())
 	assert.Nil(stats)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -193,13 +194,13 @@ func TestUpdateCurrentUser(T *testing.T) {
 	assert.NotNil(unsplash)
 	newUserName := "lukechesser"
 
-	user, resp, err := unsplash.UpdateCurrentUser(nil)
+	user, resp, err := unsplash.UpdateCurrentUser(context.Background(), nil)
 	assert.NotNil(err)
 	assert.Nil(user)
 	assert.Nil(resp)
 	log.Println(err.Error())
 
-	user, resp, err = unsplash.UpdateCurrentUser(&UserUpdateInfo{Username: newUserName})
+	user, resp, err = unsplash.UpdateCurrentUser(context.Background(), &UserUpdateInfo{Username: newUserName})
 	assert.NotNil(err)
 	assert.Nil(user)
 	assert.Nil(resp)

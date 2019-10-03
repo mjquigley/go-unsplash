@@ -28,6 +28,8 @@ import (
 	"log"
 	"testing"
 
+	"golang.org/x/net/context"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -36,7 +38,7 @@ func TestGlobalStats(T *testing.T) {
 	assert := assert.New(T)
 	unsplash := setup()
 
-	stats, resp, err := unsplash.Stats()
+	stats, resp, err := unsplash.Stats(context.Background())
 	assert.NotNil(stats)
 	assert.NotNil(resp)
 	assert.Nil(err)

@@ -24,6 +24,7 @@
 package unsplash
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -69,12 +70,12 @@ func TestSimplePhoto(T *testing.T) {
 	assert.Nil(nil)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	photo, resp, err := unsplash.Photos.Photo("", nil)
+	photo, resp, err := unsplash.Photos.Photo(context.Background(), "", nil)
 	assert.NotNil(err)
 	assert.Nil(photo)
 	assert.Nil(resp)
 
-	photo, resp, err = unsplash.Photos.Photo("random", nil)
+	photo, resp, err = unsplash.Photos.Photo(context.Background(), "random", nil)
 	assert.NotNil(photo)
 	assert.NotNil(resp)
 	assert.Nil(err)
@@ -90,14 +91,14 @@ func TestPhotoWithOpt(T *testing.T) {
 	assert := assert.New(T)
 	var opt PhotoOpt
 	unsplash := setup()
-	photo, resp, err := unsplash.Photos.Photo("random", &opt)
+	photo, resp, err := unsplash.Photos.Photo(context.Background(), "random", &opt)
 	assert.NotNil(err)
 	assert.Nil(resp)
 	assert.Nil(photo)
 	log.Println(photo)
 	opt.Height = 400
 	opt.Width = 600
-	photo, resp, err = unsplash.Photos.Photo("random", &opt)
+	photo, resp, err = unsplash.Photos.Photo(context.Background(), "random", &opt)
 	assert.NotNil(photo)
 	assert.NotNil(resp)
 	assert.Nil(err)
@@ -108,7 +109,7 @@ func TestAllPhotos(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	photos, resp, err := unsplash.Photos.All(nil)
+	photos, resp, err := unsplash.Photos.All(context.Background(), nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
@@ -122,7 +123,7 @@ func TestAllPhotos(T *testing.T) {
 
 	opt := *defaultListOpt
 	opt.Page = 2
-	photos, resp, err = unsplash.Photos.All(&opt)
+	photos, resp, err = unsplash.Photos.All(context.Background(), &opt)
 	assert.Nil(err)
 	log.Println(err)
 	assert.NotNil(resp)
@@ -134,7 +135,7 @@ func TestAllPhotos(T *testing.T) {
 	assert.NotNil(photos)
 	assert.Equal(10, len(*photos))
 
-	photos, resp, err = unsplash.Photos.All(&ListOpt{PerPage: -1})
+	photos, resp, err = unsplash.Photos.All(context.Background(), &ListOpt{PerPage: -1})
 	assert.Nil(photos)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -147,7 +148,7 @@ func TestCuratedPhotos(T *testing.T) {
 	//TODO write better tests
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	_, resp, err := unsplash.Photos.Curated(nil)
+	_, resp, err := unsplash.Photos.Curated(context.Background(), nil)
 	assert.Nil(err)
 	//check pagination
 	assert.NotNil(resp)
@@ -158,13 +159,13 @@ func TestPhotoStats(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	stats, resp, err := unsplash.Photos.Stats("-HPhkZcJQNk")
+	stats, resp, err := unsplash.Photos.Stats(context.Background(), "-HPhkZcJQNk")
 	assert.Nil(err)
 	assert.NotNil(stats)
 	assert.NotNil(resp)
 	log.Println(stats)
 
-	stats, resp, err = unsplash.Photos.Stats("")
+	stats, resp, err = unsplash.Photos.Stats(context.Background(), "")
 	assert.Nil(stats)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -174,29 +175,29 @@ func TestPhotoStatistics(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	stats, resp, err := unsplash.Photos.Statistics("-HPhkZcJQNk", nil)
+	stats, resp, err := unsplash.Photos.Statistics(context.Background(), "-HPhkZcJQNk", nil)
 	assert.Nil(err)
 	assert.NotNil(stats)
 	assert.NotNil(resp)
 	assert.NotNil(30, stats.Downloads.Historical.Quantity)
 	log.Println(stats)
 
-	stats, resp, err = unsplash.Photos.Statistics("-HPhkZcJQNk", &StatsOpt{Quantity: 10})
+	stats, resp, err = unsplash.Photos.Statistics(context.Background(), "-HPhkZcJQNk", &StatsOpt{Quantity: 10})
 	assert.Nil(err)
 	assert.NotNil(stats)
 	assert.NotNil(resp)
 	assert.NotNil(30, stats.Downloads.Historical.Quantity)
 	log.Println(stats)
 
-	stats, resp, err = unsplash.Photos.Statistics("-HPhkZcJQNk", &StatsOpt{Resolution: "sd"})
+	stats, resp, err = unsplash.Photos.Statistics(context.Background(), "-HPhkZcJQNk", &StatsOpt{Resolution: "sd"})
 	assert.NotNil(err)
 	assert.Nil(resp)
 
-	stats, resp, err = unsplash.Photos.Statistics("-HPhkZcJQNk", &StatsOpt{Quantity: 31})
+	stats, resp, err = unsplash.Photos.Statistics(context.Background(), "-HPhkZcJQNk", &StatsOpt{Quantity: 31})
 	assert.NotNil(err)
 	assert.Nil(resp)
 
-	stats, resp, err = unsplash.Photos.Statistics("", nil)
+	stats, resp, err = unsplash.Photos.Statistics(context.Background(), "", nil)
 	assert.Nil(stats)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -206,13 +207,13 @@ func TestDownloadLink(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	url, resp, err := unsplash.Photos.DownloadLink("-HPhkZcJQNk")
+	url, resp, err := unsplash.Photos.DownloadLink(context.Background(), "-HPhkZcJQNk")
 	assert.Nil(err)
 	assert.NotNil(url)
 	assert.NotNil(resp)
 	log.Println(url)
 
-	url, resp, err = unsplash.Photos.DownloadLink("")
+	url, resp, err = unsplash.Photos.DownloadLink(context.Background(), "")
 	assert.Nil(url)
 	assert.Nil(resp)
 	assert.NotNil(err)
@@ -235,7 +236,7 @@ func TestRandomPhoto(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	photos, resp, err := unsplash.Photos.Random(nil)
+	photos, resp, err := unsplash.Photos.Random(context.Background(), nil)
 	assert.Nil(err)
 	assert.NotNil(photos)
 	assert.NotNil(resp)
@@ -248,7 +249,7 @@ func TestRandomPhoto(T *testing.T) {
 	opt.Count = 3
 	opt.SearchQuery = "Earth"
 	opt.Orientation = Landscape
-	photos, resp, err = unsplash.Photos.Random(&opt)
+	photos, resp, err = unsplash.Photos.Random(context.Background(), &opt)
 	assert.Nil(err)
 	assert.NotNil(photos)
 	assert.NotNil(resp)
@@ -257,14 +258,14 @@ func TestRandomPhoto(T *testing.T) {
 	var opt2 RandomPhotoOpt
 	opt2.Count = 3
 	opt2.CollectionIDs = []int{151842, 203782}
-	photos, resp, err = unsplash.Photos.Random(&opt2)
+	photos, resp, err = unsplash.Photos.Random(context.Background(), &opt2)
 	assert.Nil(err)
 	assert.NotNil(photos)
 	assert.NotNil(resp)
 	assert.Equal(3, len(*photos))
 
 	opt.Count = -1
-	photos, resp, err = unsplash.Photos.Random(&opt)
+	photos, resp, err = unsplash.Photos.Random(context.Background(), &opt)
 	assert.NotNil(err)
 	assert.Nil(photos)
 	assert.Nil(resp)
@@ -276,18 +277,18 @@ func TestPhotoLike(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	photos, resp, err := unsplash.Photos.Random(nil)
+	photos, resp, err := unsplash.Photos.Random(context.Background(), nil)
 	assert.Nil(err)
 	assert.NotNil(photos)
 	assert.NotNil(resp)
 	assert.Equal(1, len(*photos))
 	photoid := (*photos)[0].ID
-	photo, resp, err := unsplash.Photos.Like(*photoid)
+	photo, resp, err := unsplash.Photos.Like(context.Background(), *photoid)
 	assert.Nil(err)
 	assert.NotNil(photo)
 	assert.NotNil(resp)
 
-	photo, resp, err = unsplash.Photos.Like("")
+	photo, resp, err = unsplash.Photos.Like(context.Background(), "")
 	assert.NotNil(err)
 	assert.Nil(photo)
 	assert.Nil(resp)
@@ -297,26 +298,26 @@ func TestPhotoUnlike(T *testing.T) {
 	assert := assert.New(T)
 	log.SetOutput(ioutil.Discard)
 	unsplash := setup()
-	photos, resp, err := unsplash.Photos.Random(nil)
+	photos, resp, err := unsplash.Photos.Random(context.Background(), nil)
 	assert.Nil(err)
 	assert.NotNil(photos)
 	assert.NotNil(resp)
 	assert.Equal(1, len(*photos))
 	photoid := (*photos)[0].ID
-	photo, resp, err := unsplash.Photos.Like(*photoid)
+	photo, resp, err := unsplash.Photos.Like(context.Background(), *photoid)
 	assert.Nil(err)
 	assert.NotNil(photo)
 	log.Println(photo.String())
 	assert.NotNil(resp)
 
-	photo2, resp, err := unsplash.Photos.Unlike(*photoid)
+	photo2, resp, err := unsplash.Photos.Unlike(context.Background(), *photoid)
 	assert.Nil(err)
 	assert.NotNil(photo2)
 	assert.NotNil(resp)
 	assert.Equal(photo.ID, photo2.ID)
 	assert.Equal(photo.Color, photo2.Color)
 
-	photo, resp, err = unsplash.Photos.Like("")
+	photo, resp, err = unsplash.Photos.Like(context.Background(), "")
 	assert.NotNil(err)
 	assert.Nil(photo)
 	assert.Nil(resp)
@@ -344,43 +345,43 @@ func roguePhotoServiceTest(T *testing.T, responder httpmock.Responder) {
 
 	unsplash := setup()
 	assert := assert.New(T)
-	photo, resp, err := unsplash.Photos.Photo("gopherPhoto", nil)
+	photo, resp, err := unsplash.Photos.Photo(context.Background(), "gopherPhoto", nil)
 	assert.Nil(photo)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	photoStats, resp, err := unsplash.Photos.Stats("gopherPhoto")
+	photoStats, resp, err := unsplash.Photos.Stats(context.Background(), "gopherPhoto")
 	assert.Nil(photoStats)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	url, resp, err := unsplash.Photos.DownloadLink("gopherPhoto")
+	url, resp, err := unsplash.Photos.DownloadLink(context.Background(), "gopherPhoto")
 	assert.Nil(url)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	photos, resp, err := unsplash.Photos.Random(nil)
+	photos, resp, err := unsplash.Photos.Random(context.Background(), nil)
 	assert.Nil(photos)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	photo, resp, err = unsplash.Photos.Like("gopherPhoto")
+	photo, resp, err = unsplash.Photos.Like(context.Background(), "gopherPhoto")
 	assert.Nil(photo)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	photo, resp, err = unsplash.Photos.Unlike("gopherPhoto")
+	photo, resp, err = unsplash.Photos.Unlike(context.Background(), "gopherPhoto")
 	assert.Nil(photo)
 	assert.Nil(resp)
 	assert.NotNil(err)
 	log.Println(err)
 
-	photos, resp, err = unsplash.Photos.All(nil)
+	photos, resp, err = unsplash.Photos.All(context.Background(), nil)
 	assert.Nil(photos)
 	assert.Nil(resp)
 	assert.NotNil(err)

@@ -23,10 +23,13 @@
 
 package unsplash
 
-import "encoding/json"
+import (
+	"context"
+	"encoding/json"
+)
 
 // getPhotos can be used to query any endpoint which returns an array of Photos
-func (s *service) getPhotos(opt *ListOpt, endpoint string) (*[]Photo, *Response, error) {
+func (s *service) getPhotos(ctx context.Context, opt *ListOpt, endpoint string) (*[]Photo, *Response, error) {
 	if nil == opt {
 		opt = defaultListOpt
 	}
@@ -37,7 +40,7 @@ func (s *service) getPhotos(opt *ListOpt, endpoint string) (*[]Photo, *Response,
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := s.client.do(req)
+	resp, err := s.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -51,7 +54,7 @@ func (s *service) getPhotos(opt *ListOpt, endpoint string) (*[]Photo, *Response,
 
 // getCollections can be used to query any endpoint which
 //returns an array of Collections
-func (s *service) getCollections(opt *ListOpt, endpoint string) (*[]Collection, *Response, error) {
+func (s *service) getCollections(ctx context.Context, opt *ListOpt, endpoint string) (*[]Collection, *Response, error) {
 	if nil == opt {
 		opt = defaultListOpt
 	}
@@ -62,7 +65,7 @@ func (s *service) getCollections(opt *ListOpt, endpoint string) (*[]Collection, 
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := s.client.do(req)
+	resp, err := s.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}

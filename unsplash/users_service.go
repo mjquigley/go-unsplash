@@ -24,6 +24,7 @@
 package unsplash
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 )
@@ -38,7 +39,7 @@ type ProfileImageOpt struct {
 type UsersService service
 
 // User returns a User with username and optional profile image size ImageOpt
-func (us *UsersService) User(username string, imageOpt *ProfileImageOpt) (*User, error) {
+func (us *UsersService) User(ctx context.Context, username string, imageOpt *ProfileImageOpt) (*User, error) {
 	if "" == username {
 		return nil, &IllegalArgumentError{ErrString: "Username cannot be null"}
 	}
@@ -47,7 +48,7 @@ func (us *UsersService) User(username string, imageOpt *ProfileImageOpt) (*User,
 	if err != nil {
 		return nil, err
 	}
-	resp, err := us.client.do(req)
+	resp, err := us.client.do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ type urlWrapper struct {
 }
 
 // Portfolio returns a User with username and optional profile image size ImageOpt
-func (us *UsersService) Portfolio(username string) (*URL, error) {
+func (us *UsersService) Portfolio(ctx context.Context, username string) (*URL, error) {
 	if "" == username {
 		return nil, &IllegalArgumentError{ErrString: "Username cannot be null"}
 	}
@@ -73,7 +74,7 @@ func (us *UsersService) Portfolio(username string) (*URL, error) {
 	if err != nil {
 		return nil, err
 	}
-	resp, err := us.client.do(req)
+	resp, err := us.client.do(ctx, req)
 	if err != nil {
 		return nil, err
 	}
@@ -86,37 +87,37 @@ func (us *UsersService) Portfolio(username string) (*URL, error) {
 }
 
 // Photos return an array of photos uploaded by the user.
-func (us *UsersService) Photos(username string, opt *ListOpt) (*[]Photo, *Response, error) {
+func (us *UsersService) Photos(ctx context.Context, username string, opt *ListOpt) (*[]Photo, *Response, error) {
 	if "" == username {
 		return nil, nil, &IllegalArgumentError{ErrString: "Username cannot be null"}
 	}
 	s := (service)(*us)
 	endpoint := fmt.Sprintf("%v/%v/%v", getEndpoint(users), username, getEndpoint(photos))
-	return s.getPhotos(opt, endpoint)
+	return s.getPhotos(ctx, opt, endpoint)
 }
 
 // LikedPhotos return an array of liked photos
-func (us *UsersService) LikedPhotos(username string, opt *ListOpt) (*[]Photo, *Response, error) {
+func (us *UsersService) LikedPhotos(ctx context.Context, username string, opt *ListOpt) (*[]Photo, *Response, error) {
 	if "" == username {
 		return nil, nil, &IllegalArgumentError{ErrString: "Username cannot be null"}
 	}
 	s := (service)(*us)
 	endpoint := fmt.Sprintf("%v/%v/%v", getEndpoint(users), username, "likes")
-	return s.getPhotos(opt, endpoint)
+	return s.getPhotos(ctx, opt, endpoint)
 }
 
 // Collections return an array of user's collections.
-func (us *UsersService) Collections(username string, opt *ListOpt) (*[]Collection, *Response, error) {
+func (us *UsersService) Collections(ctx context.Context, username string, opt *ListOpt) (*[]Collection, *Response, error) {
 	if "" == username {
 		return nil, nil, &IllegalArgumentError{ErrString: "Username cannot be null"}
 	}
 	s := (service)(*us)
 	endpoint := fmt.Sprintf("%v/%v/%v", getEndpoint(users), username, getEndpoint(collections))
-	return s.getCollections(opt, endpoint)
+	return s.getCollections(ctx, opt, endpoint)
 }
 
 // Statistics return a stats about a photo with id.
-func (us *UsersService) Statistics(username string, opt *StatsOpt) (*UserStatistics, *Response, error) {
+func (us *UsersService) Statistics(ctx context.Context, username string, opt *StatsOpt) (*UserStatistics, *Response, error) {
 	if "" == username {
 		return nil, nil, &IllegalArgumentError{ErrString: "Photo ID cannot be null"}
 	}
@@ -131,7 +132,7 @@ func (us *UsersService) Statistics(username string, opt *StatsOpt) (*UserStatist
 	if err != nil {
 		return nil, nil, err
 	}
-	resp, err := us.client.do(req)
+	resp, err := us.client.do(ctx, req)
 	if err != nil {
 		return nil, nil, err
 	}
